@@ -15,7 +15,7 @@ CMD ["python", "app.py"]
 
 # Install Tailscale
 #RUN curl -fsSL https://pkgs.tailscale.com/stable/tailscale_1.66.4_amd64.tgz | tar -xz && \
-    mv tailscale*/tailscale tailscale*/tailscaled /usr/sbin/
+#    mv tailscale*/tailscale tailscale*/tailscaled /usr/sbin/
 
 # Set working directory
 #WORKDIR /app
