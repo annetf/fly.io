@@ -24,27 +24,27 @@ primary_region = 'arn'
 
 # added to enable my Fly.io app to connect to your Tailscale network (sidecar process for tailscaled)
 
-[env]
+#[env]
   # Optional: expose the PI_ENDPOINT and API key if not using secrets
   # PI_ENDPOINT = "http://raspberrypi.tail37fbde.ts.net:5000/ruuvi"
   # RELAY_API_KEY = "your-api-key"
 
-[processes]
-  app = "bash /start.sh"
-  tailscale = "/usr/sbin/tailscaled --tun=userspace-networking --socks5-server=localhost:1055"
+#[processes]
+#  app = "bash /start.sh"
+#  tailscale = "/usr/sbin/tailscaled --tun=userspace-networking --socks5-server=localhost:1055"
 
-[[services]]
-  internal_port = 8080
-  protocol = "tcp"
-  processes = ["app"]
-  auto_start_machines = true
-  auto_stop_machines = true
-  min_machines_running = 0
+#[[services]]
+#  internal_port = 8080
+#  protocol = "tcp"
+#  processes = ["app"]
+#  auto_start_machines = true
+#  auto_stop_machines = true
+#  min_machines_running = 0
 
-  [[services.ports]]
-    handlers = ["http"]
-    port = 80
+#  [[services.ports]]
+#    handlers = ["http"]
+#    port = 80
 
-  [[services.ports]]
-    handlers = ["tls", "http"]
-    port = 443
+#  [[services.ports]]
+#   handlers = ["tls", "http"]
+#    port = 443
