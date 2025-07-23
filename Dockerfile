@@ -3,11 +3,11 @@ FROM debian:bookworm-slim
 # Install Python and system dependencies
 RUN apt-get update && apt-get install -y \
     python3 python3-pip python3-venv \
-    iproute2 iptables curl gnupg2 ca-certificates lsb-release
+    iproute2 iptables curl gnupg2 ca-certificates lsb-release dirmngr
 
-# Add Tailscale repository and GPG key
-RUN curl -fsSL https://pkgs.tailscale.com/stable/debian/bookworm.gpg | tee /usr/share/keyrings/tailscale-archive-keyring.gpg > /dev/null && \
-    curl -fsSL https://pkgs.tailscale.com/stable/debian/bookworm.list | tee /etc/apt/sources.list.d/tailscale.list > /dev/null
+# Add Tailscale GPG key and repository
+RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 458CA832957F5868 && \
+    curl -fsSL https://pkgs.tailscale.com/stable/debian/bookworm.list | tee /etc/apt/sources.list.d/tailscale.list
 
 # Install Tailscale
 RUN apt-get update && apt-get install -y tailscale && apt-get clean
