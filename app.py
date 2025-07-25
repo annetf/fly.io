@@ -10,7 +10,7 @@ PI_ENDPOINT = os.getenv("PI_ENDPOINT")  # e.g., https://fly-io-arspzg.fly.dev/ru
 
 @app.route("/ruuvi", methods=["POST"])
 def relay_data():
-    print("Received headers:", dict(request.headers))  # for debugging Print all incoming headers
+    app.logger.info("Received headers: %s", dict(request.headers))  # for debugging Print all incoming headers
 
     # API key check is disabled for testing
     #if request.headers.get("X-API-Key") != API_KEY:
@@ -18,13 +18,13 @@ def relay_data():
 
     try:
         data = request.get_json()
-        print("Forwarding data to Raspberry Pi:", data)  # Debug payload
+        app.logger.info("Forwarding data to Raspberry Pi: %s", data)  # Debug payload
 
         response = requests.post(PI_ENDPOINT, json=data)
         return jsonify({"status": "forwarded", "pi_response": response.text}), response.status_code
 
     except Exception as e:
-        print("Error:", str(e))  # Optional: log error
+        app.logger.error("Error: %s", str(e))  # Optional: log error
         return jsonify({"error": str(e)}), 500
 
 if __name__ == "__main__":
