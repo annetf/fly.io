@@ -14,9 +14,10 @@ PI_ENDPOINT = os.getenv("PI_ENDPOINT")  # e.g., https://fly-io-arspzg.fly.dev/ru
 def relay_data():
     app.logger.info("Received headers: %s", dict(request.headers))  # for debugging Print all incoming headers
 
-    # API key check is disabled for testing
-    #if request.headers.get("X-API-Key") != API_KEY:
-    #    return jsonify({"error": "Unauthorized"}), 401
+    # API key check using 'Authorization: Token ...'
+    auth_header = request.headers.get("Authorization")
+    if not auth_header or not auth_header.startswith("Token ") or auth_header.split(" ")[1] != API_KEY:
+        return jsonify({"error": "Unauthorized"}), 401
 
     try:
         data = request.get_json()
