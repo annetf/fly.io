@@ -30,5 +30,10 @@ def relay_data():
         app.logger.error("Error: %s", str(e))  # Optional: log error
         return jsonify({"error": str(e)}), 500
 
+#if __name__ == "__main__":
+#    app.run(host="0.0.0.0", port=8080)
+
+# to try to avoid multiple fly-relay apps in Tailscale
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=8080)
+    port = int(os.getenv("PORT", "8080"))
+    app.run(host="0.0.0.0", port=port)
