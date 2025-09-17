@@ -10,8 +10,8 @@ primary_region = 'fra'
 
 # changed this to avoid repeated instances of fly-relay in Tailscale:
 [http_service]
-  #internal_port = 8080
-  internal_port = 5000
+  internal_port = 8080
+  #internal_port = 5000
   force_https = true
   #auto_stop_machines = 'stop'
   auto_stop_machines = 'off'     # temporarily prevent idle stop/restarts
