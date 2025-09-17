@@ -20,4 +20,13 @@ RUN python3 -m venv /app/venv && \
     /app/venv/bin/pip install --no-cache-dir -r requirements.txt
 
 # Start Tailscale and the Flask app using the virtual environment
-CMD bash -c "tailscaled & sleep 5 && tailscale up --authkey=${TS_AUTHKEY} --hostname=fly-relay && /app/venv/bin/python app.py"
+#CMD bash -c "tailscaled & sleep 5 && tailscale up --authkey=${TS_AUTHKEY} --hostname=fly-relay && /app/venv/bin/python app.py"
+
+# to avoid repeated instances of the fly-relay on Tailscale, replaced the last line above with a short retry loop:
+# Start tailscaled, try 'tailscale up' for ~2 minutes, then start Flask
+CMD bash -lc 'tailscaled & \
+  for i in {1..60}; do \
+    tailscale up --authkey="$TS_AUTHKEY" --hostname=fly-relay --advertise-tags=tag:fly-relay && break; \
+    echo "tailscale up failed, retrying in 2s..."; sleep 2; \
+  done; \
+  exec /app/venv/bin/python app.py'
