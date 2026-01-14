@@ -87,8 +87,20 @@ def _as_int_or_none(v):
     except (TypeError, ValueError):
         return None
 
+
 @app.route("/ruuvi", methods=["POST"])
 def relay_data():
+    # >>> BEGIN BLOCK 2: payload preview logging (ADD)
+    raw = request.get_data(cache=True)  # keep cached so get_json() still works
+    if LOG_PAYLOADS:
+        try:
+            preview = raw[:LOG_MAX_BYTES].decode("utf-8", errors="replace")
+        except Exception:
+            preview = repr(raw[:LOG_MAX_BYTES])
+        app.logger.info("Received headers: %s", _redact_headers(request.headers))
+        app.logger.info("Received body bytes=%d preview=%s", len(raw), preview)
+    # <<< END BLOCK 2
+
     # --- keep your header logging exactly as-is ---
     app.logger.info("Received headers: %s", dict(request.headers))
 
@@ -102,6 +114,21 @@ def relay_data():
         if not isinstance(payload, dict) or "data" not in payload:
             app.logger.warning("Invalid payload: %s", payload)
             return jsonify({"status": "ok", "ruuvi_forwarded": 0, "voc_forwarded": 0, "message": "invalid payload"}), 200
+
+        # >>> BEGIN BLOCK 3: compact summary log (ADD)
+        if LOG_PAYLOADS:
+            data_summary = payload.get("data") or {}
+            tags = data_summary.get("tags") or {}
+            tag_ids = list(tags.keys()) if isinstance(tags, dict) else []
+            sample_ids = tag_ids[:LOG_SAMPLE_TAGS]
+            app.logger.info(
+                "Parsed JSON OK: gw_mac=%s timestamp=%s tags_count=%d sample_tags=%s",
+                data_summary.get("gw_mac"),
+                _as_int_or_none(data_summary.get("timestamp")),
+                len(tag_ids),
+                sample_ids,
+            )
+        # <<< END BLOCK 3
 
         data = payload.get("data", {})
         gw_mac = data.get("gw_mac")
@@ -206,6 +233,7 @@ def relay_data():
 if __name__ == "__main__":
     port = int(os.getenv("PORT", "8080"))
     app.run(host="0.0.0.0", port=port)
+
 
 
 
