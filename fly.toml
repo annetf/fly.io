@@ -24,3 +24,11 @@ primary_region = 'fra'
   cpu_kind = 'shared'
   cpus = 1
   memory_mb = 1024
+
+
+# added logging 
+[env]
+  LOG_PAYLOADS = "1"
+  LOG_MAX_BYTES = "1200"
+  LOG_SAMPLE_TAGS = "5"
+
