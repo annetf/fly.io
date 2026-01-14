@@ -2,10 +2,36 @@ from flask import Flask, request, jsonify
 import requests
 import os
 import logging
+import json
 from label_parser import try_parse_label
 logging.basicConfig(level=logging.INFO)
 
+
+# --- Turn ON payload logging by setting LOG_PAYLOADS=1 in the app's env
+LOG_PAYLOADS    = os.getenv("LOG_PAYLOADS", "0") == "1"
+LOG_MAX_BYTES   = int(os.getenv("LOG_MAX_BYTES", "1200"))   # body preview cap
+LOG_SAMPLE_TAGS = int(os.getenv("LOG_SAMPLE_TAGS", "5"))    # how many tags to list
+
+def _redact_headers(hdrs: dict) -> dict:
+    """Mask secrets in headers before logging."""
+    safe = dict(hdrs)
+    if 'Authorization' in safe:
+        val = safe.get('Authorization', '')
+        if isinstance(val, str) and val.lower().startswith('token'):
+            safe['Authorization'] = 'Token ******'
+        elif isinstance(val, str) and val.lower().startswith('bearer'):
+            safe['Authorization'] = 'Bearer ******'
+        else:
+            safe['Authorization'] = '******'
+    if 'X-API-Key' in safe:
+        safe['X-API-Key'] = '******'
+    return safe
+# --- END: payload logging toggles ---
+
+
+# --------------- Flask app ---------------------
 app = Flask(__name__)
+
 
 # Environment variables (optional, not used since API key check is disabled)
 API_KEY = os.getenv("RELAY_API_KEY")
@@ -60,9 +86,6 @@ def _as_int_or_none(v):
         return None if v is None else int(v)
     except (TypeError, ValueError):
         return None
-
-
-
 
 @app.route("/ruuvi", methods=["POST"])
 def relay_data():
@@ -183,5 +206,6 @@ def relay_data():
 if __name__ == "__main__":
     port = int(os.getenv("PORT", "8080"))
     app.run(host="0.0.0.0", port=port)
+
 
 
