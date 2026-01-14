@@ -179,6 +179,14 @@ def relay_data():
                 "sgp40_raw": parsed.get("sgp40_raw"),
             }
 
+
+            # NEW: emit the VOC payload you're sending to the Pi (only when LOG_PAYLOADS=1)
+            if LOG_PAYLOADS:
+                # One-line JSON (matches your Ruuvi style of compact logging)
+                app.logger.info("VOC payload -> Pi: %s", json.dumps(voc_json, ensure_ascii=False))
+                # If you prefer pretty-printed lines instead, use:
+                # app.logger.info("VOC payload -> Pi:\n%s", json.dumps(voc_json, indent=2, ensure_ascii=False))
+
             # Post one VOC reading per device to the Pi's /ingest/voc
             if not PI_ENDPOINT_VOC:
                 app.logger.warning("VOC relay: PI_ENDPOINT_VOC is not set; skipping post for %s", mac)
@@ -207,6 +215,10 @@ def relay_data():
                         "tags": ruuvi_allowed,
                     }
                 }
+
+                # Emit the exact payload you forward to the Pi (toggle with LOG_PAYLOADS)
+                if LOG_PAYLOADS:
+                    app.logger.info("Forwarding data to Raspberry Pi: %s", json.dumps(fwd_payload, ensure_ascii=False))
                 try:
                     resp_r = requests.post(PI_ENDPOINT, json=fwd_payload, timeout=6)
                     if resp_r.status_code != 200:
@@ -233,6 +245,7 @@ def relay_data():
 if __name__ == "__main__":
     port = int(os.getenv("PORT", "8080"))
     app.run(host="0.0.0.0", port=port)
+
 
 
 
