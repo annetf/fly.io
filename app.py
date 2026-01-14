@@ -22,7 +22,9 @@ ALLOWLIST_RUUVI = {
     "FE:31:94:F4:EA:23",
     "D1:AF:84:BD:6F:1E",
     "E1:5C:E7:9B:9B:58",
-    # TODO: add two more later (…:97:A1 and …:A1:F5)
+    "C5:4F:89:DA:A1:F5",
+    "CB:92:8D:DC:97:A1",
+    # TODO: add two more later if we get more tags
 }
 
 ALLOWLIST_VOC = {
@@ -181,4 +183,5 @@ def relay_data():
 if __name__ == "__main__":
     port = int(os.getenv("PORT", "8080"))
     app.run(host="0.0.0.0", port=port)
+
 
